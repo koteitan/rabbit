@@ -61,8 +61,8 @@ const Extensions: ExtensionDefinition[] = [
     url: 'https://apps.apple.com/jp/app/nostore/id1666553677',
     guides: [
       {
-        title: 'nostore(iOS Safari用NIP-07拡張機能)のセットアップ',
-        url: 'https://scrapbox.io/nostr/nostore(iOS_Safari%E7%94%A8NIP-07%E6%8B%A1%E5%BC%B5%E6%A9%9F%E8%83%BD)%E3%81%AE%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97',
+        title: 'nostash(iOS Safari用NIP-07拡張機能)のセットアップ',
+        url: 'https://scrapbox.io/nostr/nostash(iOS_Safari%E7%94%A8NIP-07%E6%8B%A1%E5%BC%B5%E6%A9%9F%E8%83%BD)%E3%81%AE%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97',
         lang: 'ja',
       },
     ],
