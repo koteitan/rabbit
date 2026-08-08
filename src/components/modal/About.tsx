@@ -51,7 +51,7 @@ const About: Component<AboutProps> = (props) => {
           <img src={resolveAsset('images/rabbit_app_256.png')} alt="Logo" width="64" height="64" />
 
           <h1 class="my-4">
-            Rabbit{' '}
+            Rabbit 魔改造 ver.{' '}
             <span id="app-version">
               <Show when={commit} fallback="(dev)">
                 {' '}
@@ -64,13 +64,13 @@ const About: Component<AboutProps> = (props) => {
         <div class="my-4 flex justify-center gap-3">
           <SafeLink
             class="rounded-sm border-2 border-primary px-4 py-2 font-bold text-primary hover:border-primary-hover hover:text-primary-hover"
-            href="https://github.com/syusui-s/rabbit/issues/new/choose"
+            href="https://github.com/koteitan/rabbit/issues/new/choose"
           >
             {i18n.t('about.bugReport')}
           </SafeLink>
           <SafeLink
             class="rounded-sm border-2 border-primary px-4 py-2 font-bold text-primary hover:border-primary-hover hover:text-primary-hover"
-            href="https://github.com/syusui-s/rabbit"
+            href="https://github.com/koteitan/rabbit"
           >
             {i18n.t('about.sourceCode')}
           </SafeLink>
@@ -94,6 +94,22 @@ const About: Component<AboutProps> = (props) => {
           >
             Rabbit contributors
           </SafeLink>
+        </p>
+
+        <p class="my-4">
+          Copyright &copy; 2026{' '}
+          <SafeLink class="text-link underline" href="https://github.com/koteitan">
+            koteitan
+          </SafeLink>
+        </p>
+
+        <p class="my-4">
+          This is a modified version of Rabbit, modified by koteitan in 2026. The source code of
+          this modified version is available at{' '}
+          <SafeLink class="text-link underline" href="https://github.com/koteitan/rabbit">
+            github.com/koteitan/rabbit
+          </SafeLink>
+          .
         </p>
 
         <pre class="max-h-96 overflow-auto rounded-sm bg-bg-tertiary p-2 text-sm">

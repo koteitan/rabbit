@@ -54,7 +54,7 @@ const Hello: Component = () => {
     <div class="mx-auto flex max-w-screen-sm flex-col items-center p-4 text-fg">
       <div class="flex flex-col items-center gap-4 rounded-sm p-4">
         <img src={resolveAsset('images/rabbit_256.png')} width="96" alt="logo" height="96" />
-        <h1 class="text-5xl font-black text-primary">Rabbit</h1>
+        <h1 class="text-center text-5xl font-black text-primary">Rabbit 魔改造 ver.</h1>
         <div>Rabbit is a Web client for Nostr.</div>
       </div>
       <div class="rounded-md p-8 shadow-md">
@@ -100,9 +100,18 @@ const Hello: Component = () => {
         </SafeLink>
       </p>
       <p class="mt-1 text-xs text-fg-secondary">
+        Copyright &copy; 2026{' '}
+        <SafeLink class="underline hover:text-fg-tertiary" href="https://github.com/koteitan">
+          koteitan
+        </SafeLink>
+      </p>
+      <p class="mt-1 text-center text-xs text-fg-secondary">
+        This is a modified version of Rabbit, modified by koteitan in 2026.
+      </p>
+      <p class="mt-1 text-xs text-fg-secondary">
         <SafeLink
           class="underline hover:text-fg-tertiary"
-          href="https://github.com/syusui-s/rabbit"
+          href="https://github.com/koteitan/rabbit"
         >
           GitHub
         </SafeLink>
