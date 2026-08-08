@@ -1,4 +1,4 @@
-import { type JSX, Show, createMemo, createSignal, onMount } from 'solid-js';
+import { type JSX, Show, createEffect, createMemo, createSignal, onMount } from 'solid-js';
 
 import EmojiDisplay, { type EmojiTypes } from '@/components/EmojiDisplay';
 import usePopup from '@/components/utils/usePopup';
@@ -7,6 +7,8 @@ import useLongPress from '@/hooks/useLongPress';
 export type UseEmojiPopupProps = {
   emoji: EmojiTypes;
   onClick?: () => void;
+  /** keeps the popup out of the way while the emoji is being used for something else */
+  disabled?: boolean;
 };
 
 type UseEmojiPopup = {
@@ -29,8 +31,13 @@ const useEmojiPopup = (propsProvider: () => UseEmojiPopupProps | null): UseEmoji
   };
 
   const open = () => {
+    if (props()?.disabled ?? false) return;
     popup.open();
   };
+
+  createEffect(() => {
+    if (props()?.disabled ?? false) popup.close();
+  });
 
   const popup = usePopup(() => ({
     popup: () => (
