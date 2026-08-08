@@ -243,6 +243,9 @@ export default {
       emojiListImported_other: 'Imported {{count}} emojis from {{emojiSetCount}} emoji sets.',
       emojiListNotFound: 'Emoji list (kind:10030) was not found.',
       failedToImportEmojiList: 'Failed to import the emoji list',
+      exportEmojiDescription:
+        '"Export" saves the emojis you have registered as a JSON file, in the format this section imports.',
+      exportEmoji: 'Export',
     },
     mute: {
       mute: 'Mute',

@@ -5,7 +5,11 @@ import useConfig from '@/core/useConfig';
 import { useTranslation } from '@/i18n/useTranslation';
 import { fetchEmojiListEmojis } from '@/nostr/emojiSet';
 import usePubkey from '@/nostr/usePubkey';
-import { convertToEmojiConfig, simpleEmojiPackSchema } from '@/utils/emojipack';
+import {
+  convertToEmojiConfig,
+  convertToSimpleEmojiPack,
+  simpleEmojiPackSchema,
+} from '@/utils/emojipack';
 
 const EmojiImportSection = () => {
   const i18n = useTranslation();
@@ -56,6 +60,21 @@ const EmojiImportSection = () => {
     }
   };
 
+  const emojis = () => Object.values(config().customEmojis);
+
+  const handleClickExportEmoji = () => {
+    const json = JSON.stringify(convertToSimpleEmojiPack(emojis()), null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const dataUrl = URL.createObjectURL(blob);
+
+    const datetime = new Date().toISOString();
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `rabbit-emojis-${datetime}.json`;
+
+    link.click();
+  };
+
   const handleClickImportEmojiList = () => {
     if (importingEmojiList()) return;
     setImportingEmojiList(true);
@@ -68,6 +87,7 @@ const EmojiImportSection = () => {
     <Section title={i18n.t('config.customEmoji.emojiImport')}>
       <p>{i18n.t('config.customEmoji.emojiImportDescription')}</p>
       <p>{i18n.t('config.customEmoji.importEmojiListDescription')}</p>
+      <p>{i18n.t('config.customEmoji.exportEmojiDescription')}</p>
       <form class="flex flex-col gap-2" onSubmit={handleClickSaveEmoji}>
         <textarea
           class="flex-1 rounded-md border-border bg-bg placeholder:text-fg-secondary focus:border-border focus:ring-primary"
@@ -86,6 +106,14 @@ const EmojiImportSection = () => {
             {importingEmojiList()
               ? i18n.t('config.customEmoji.importingEmojiList')
               : i18n.t('config.customEmoji.importEmojiList')}
+          </button>
+          <button
+            type="button"
+            class="w-24 rounded-sm border border-primary p-2 font-bold text-primary disabled:opacity-50"
+            disabled={emojis().length === 0}
+            onClick={handleClickExportEmoji}
+          >
+            {i18n.t('config.customEmoji.exportEmoji')}
           </button>
           <button type="submit" class="w-24 rounded-sm bg-primary p-2 font-bold text-primary-fg">
             {i18n.t('config.customEmoji.importEmoji')}

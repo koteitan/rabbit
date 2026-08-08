@@ -241,6 +241,9 @@ export default {
         '{{emojiSetCount}}個の絵文字セットから{{count}}個の絵文字をインポートしました',
       emojiListNotFound: '絵文字リスト(kind:10030)が見つかりませんでした',
       failedToImportEmojiList: '絵文字リストの読み込みに失敗しました',
+      exportEmojiDescription:
+        '「エクスポート」を押すと、登録済みの絵文字をここからインポートできるJSON形式でファイルに保存します。',
+      exportEmoji: 'エクスポート',
     },
     mute: {
       mute: 'ミュート',

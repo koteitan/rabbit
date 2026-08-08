@@ -80,3 +80,10 @@ export const getEmojiPack = async (urlString: string): Promise<AllEmojiPack> => 
 
 export const convertToEmojiConfig = (emojipack: SimpleEmojiPack): CustomEmojiConfig[] =>
   Object.entries(emojipack).map(([shortcode, url]) => ({ shortcode, url }));
+
+export const convertToSimpleEmojiPack = (emojis: CustomEmojiConfig[]): SimpleEmojiPack =>
+  Object.fromEntries(
+    Array.from(emojis)
+      .sort((a, b) => a.shortcode.localeCompare(b.shortcode))
+      .map(({ shortcode, url }) => [shortcode, url]),
+  );
