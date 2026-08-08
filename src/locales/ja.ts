@@ -227,6 +227,10 @@ export default {
       url: 'URL',
       addEmoji: '追加',
       removeEmoji: '削除',
+      removeSelectedEmojis_one: '選択した{{count}}個を削除',
+      removeSelectedEmojis_other: '選択した{{count}}個を削除',
+      confirmRemoveEmojis_one: '選択した{{count}}個の絵文字を削除しますか？',
+      confirmRemoveEmojis_other: '選択した{{count}}個の絵文字を削除しますか？',
       emojiImport: '絵文字のインポート',
       emojiImportDescription:
         '絵文字の名前をキー、画像のURLを値とするJSONを読み込むことができます。',

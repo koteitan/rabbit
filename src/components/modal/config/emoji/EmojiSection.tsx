@@ -1,18 +1,24 @@
-import { createSignal, For, type JSX } from 'solid-js';
+import { createMemo, createSignal, For, type JSX } from 'solid-js';
 
+import SelectableEmoji from '@/components/modal/config/emoji/SelectableEmoji';
+import useEmojiSelection from '@/components/modal/config/emoji/useEmojiSelection';
 import Section from '@/components/modal/config/Section';
-import LazyLoad from '@/components/utils/LazyLoad';
-import usePopup from '@/components/utils/usePopup';
 import useConfig from '@/core/useConfig';
 import { useTranslation } from '@/i18n/useTranslation';
 import { HttpUrlRegex } from '@/utils/regex';
 
 const EmojiSection = () => {
   const i18n = useTranslation();
-  const { config, saveEmoji, removeEmoji } = useConfig();
+  const { config, saveEmoji, removeEmojis } = useConfig();
 
   const [shortcodeInput, setShortcodeInput] = createSignal('');
   const [urlInput, setUrlInput] = createSignal('');
+
+  const selection = useEmojiSelection();
+
+  // the shortcode is unique in the config, so it identifies an emoji by itself here
+  const emojis = createMemo(() => Object.values(config().customEmojis));
+  const shortcodes = () => emojis().map(({ shortcode }) => shortcode);
 
   const handleClickSaveEmoji: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (ev) => {
     ev.preventDefault();
@@ -20,6 +26,18 @@ const EmojiSection = () => {
     saveEmoji({ shortcode: shortcodeInput(), url: urlInput() });
     setShortcodeInput('');
     setUrlInput('');
+  };
+
+  const handleClickRemoveSelected = () => {
+    const selected = shortcodes().filter((shortcode) => selection.isSelected(shortcode));
+    if (selected.length === 0) return;
+    if (
+      !window.confirm(i18n.t('config.customEmoji.confirmRemoveEmojis', { count: selected.length }))
+    )
+      return;
+
+    removeEmojis(selected);
+    selection.clear();
   };
 
   return (
@@ -58,51 +76,55 @@ const EmojiSection = () => {
           {i18n.t('config.customEmoji.addEmoji')}
         </button>
       </form>
-      <ul class="mt-4 flex max-h-[40vh] min-h-64 flex-wrap overflow-y-auto border-t border-border">
-        <For each={Object.values(config().customEmojis)}>
-          {({ shortcode, url }) => {
-            const popup = usePopup(() => ({
-              popup: (
-                <div class="flex min-w-24 flex-col items-center rounded-sm border border-border bg-bg shadow-sm">
-                  <div class="flex items-center p-1">
-                    <img class="h-20 max-w-20 object-contain" src={url} alt={shortcode} />
-                  </div>
-                  <div class="p-1 text-center text-sm">{shortcode}</div>
-                  <div class="w-full border-t border-border">
-                    <button
-                      type="button"
-                      class="w-full px-2 py-1 text-danger"
-                      onClick={() => removeEmoji(shortcode)}
-                    >
-                      {i18n.t('config.customEmoji.removeEmoji')}
-                    </button>
-                  </div>
-                </div>
-              ),
-            }));
 
-            return (
-              <li ref={popup.targetRef} class="min-w-0 basis-1/2 sm:basis-1/4">
-                <button
-                  type="button"
-                  class="flex w-full flex-col items-center gap-1 rounded-sm p-2 hover:bg-bg-tertiary/20 hover:shadow-sm"
-                  onClick={() => popup.open()}
-                >
-                  <LazyLoad fallback={<div class="size-8" />}>
-                    {() => (
-                      <div class="flex h-8 max-w-8 items-center">
-                        <img class="object-contain" src={url} alt={shortcode} />
-                      </div>
-                    )}
-                  </LazyLoad>
-                  <div class="w-full truncate text-xs text-fg-secondary">{shortcode}</div>
-                </button>
-                {popup.popup()}
-              </li>
-            );
-          }}
+      <div class="mt-4 flex items-center gap-2 border-t border-border pt-2">
+        <button
+          type="button"
+          class="rounded-sm border border-primary px-2 py-1 text-sm font-bold text-primary"
+          onClick={() => selection.select(shortcodes())}
+        >
+          {i18n.t('config.customEmoji.selectAll')}
+        </button>
+        <button
+          type="button"
+          class="rounded-sm border border-primary px-2 py-1 text-sm font-bold text-primary"
+          onClick={() => selection.clear()}
+        >
+          {i18n.t('config.customEmoji.deselectAll')}
+        </button>
+        <div class="flex-1 text-end text-sm text-fg-secondary">
+          {i18n.t('config.customEmoji.numberOfSelectedEmojis', {
+            count: selection.selectedKeys().size,
+            total: emojis().length,
+          })}
+        </div>
+      </div>
+
+      <ul class="scrollbar flex max-h-[40vh] min-h-64 flex-wrap overflow-y-auto">
+        <For each={emojis()}>
+          {({ shortcode, url }) => (
+            <SelectableEmoji
+              emojiKey={shortcode}
+              shortcode={shortcode}
+              url={url}
+              selection={selection}
+            />
+          )}
         </For>
       </ul>
+
+      <div class="flex justify-end">
+        <button
+          type="button"
+          class="rounded-sm border border-danger p-2 font-bold text-danger disabled:opacity-50"
+          disabled={selection.selectedKeys().size === 0}
+          onClick={handleClickRemoveSelected}
+        >
+          {i18n.t('config.customEmoji.removeSelectedEmojis', {
+            count: selection.selectedKeys().size,
+          })}
+        </button>
+      </div>
     </Section>
   );
 };

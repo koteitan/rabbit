@@ -111,6 +111,7 @@ type UseConfig = {
   saveEmoji: (emoji: CustomEmojiConfig) => void;
   saveEmojis: (emojis: CustomEmojiConfig[]) => void;
   removeEmoji: (shortcode: string) => void;
+  removeEmojis: (shortcodes: string[]) => void;
   getEmoji: (shortcode: string) => CustomEmojiConfig | undefined;
   searchEmojis: (term: string) => CustomEmojiConfig[];
   // mute
@@ -288,6 +289,13 @@ const useConfig = (): UseConfig => {
     setConfig('customEmojis', (current) => ({ ...current, [shortcode]: undefined }));
   };
 
+  const removeEmojis = (shortcodes: string[]) => {
+    setConfig('customEmojis', (current) => {
+      const removed = Object.fromEntries(shortcodes.map((shortcode) => [shortcode, undefined]));
+      return { ...current, ...removed };
+    });
+  };
+
   const getEmoji = (shortcode: string): CustomEmojiConfig | undefined =>
     config.customEmojis[shortcode];
 
@@ -395,6 +403,7 @@ const useConfig = (): UseConfig => {
     saveEmoji,
     saveEmojis,
     removeEmoji,
+    removeEmojis,
     getEmoji,
     searchEmojis,
     // mute
