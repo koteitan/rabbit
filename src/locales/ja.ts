@@ -231,6 +231,16 @@ export default {
       emojiImportDescription:
         '絵文字の名前をキー、画像のURLを値とするJSONを読み込むことができます。',
       importEmoji: 'インポート',
+      importEmojiListDescription:
+        '「フォロー中の絵文字セットを追加」を押すと、絵文字リスト(kind:10030)に登録している絵文字と絵文字セット(kind:30030)の絵文字をすべて追加します。',
+      importEmojiList: 'フォロー中の絵文字セットを追加',
+      importingEmojiList: '追加中...',
+      emojiListImported_one:
+        '{{emojiSetCount}}個の絵文字セットから{{count}}個の絵文字をインポートしました',
+      emojiListImported_other:
+        '{{emojiSetCount}}個の絵文字セットから{{count}}個の絵文字をインポートしました',
+      emojiListNotFound: '絵文字リスト(kind:10030)が見つかりませんでした',
+      failedToImportEmojiList: '絵文字リストの読み込みに失敗しました',
     },
     mute: {
       mute: 'ミュート',

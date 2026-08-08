@@ -235,6 +235,14 @@ export default {
       emojiImport: 'Emoji import',
       emojiImportDescription: 'Paste a JSON where the keys are names and the values are image URLs',
       importEmoji: 'Import',
+      importEmojiListDescription:
+        '"Import followed emoji sets" adds every emoji of your emoji list (kind:10030) and of all the emoji sets (kind:30030) it refers to.',
+      importEmojiList: 'Import followed emoji sets',
+      importingEmojiList: 'Importing...',
+      emojiListImported_one: 'Imported {{count}} emoji from {{emojiSetCount}} emoji sets.',
+      emojiListImported_other: 'Imported {{count}} emojis from {{emojiSetCount}} emoji sets.',
+      emojiListNotFound: 'Emoji list (kind:10030) was not found.',
+      failedToImportEmojiList: 'Failed to import the emoji list',
     },
     mute: {
       mute: 'Mute',
