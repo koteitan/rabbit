@@ -1,9 +1,10 @@
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal, Show, type JSX } from 'solid-js';
 
+import EmojiSetPicker from '@/components/modal/config/emoji/EmojiSetPicker';
 import Section from '@/components/modal/config/Section';
-import useConfig from '@/core/useConfig';
+import useConfig, { type CustomEmojiConfig } from '@/core/useConfig';
 import { useTranslation } from '@/i18n/useTranslation';
-import { fetchEmojiListEmojis } from '@/nostr/emojiSet';
+import { fetchEmojiSetsOfList, type EmojiSetContent } from '@/nostr/emojiSet';
 import usePubkey from '@/nostr/usePubkey';
 import {
   convertToEmojiConfig,
@@ -17,7 +18,8 @@ const EmojiImportSection = () => {
   const pubkey = usePubkey();
 
   const [jsonInput, setJSONInput] = createSignal('');
-  const [importingEmojiList, setImportingEmojiList] = createSignal(false);
+  const [loadingEmojiSets, setLoadingEmojiSets] = createSignal(false);
+  const [emojiSets, setEmojiSets] = createSignal<EmojiSetContent[] | null>(null);
 
   const handleClickSaveEmoji: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (ev) => {
     ev.preventDefault();
@@ -34,30 +36,33 @@ const EmojiImportSection = () => {
     }
   };
 
-  const importEmojiList = async () => {
+  const loadEmojiSets = async () => {
     const currentPubkey = pubkey();
     if (currentPubkey == null) return;
 
     try {
-      const { emojis, emojiSetCount } = await fetchEmojiListEmojis({
+      const fetched = await fetchEmojiSetsOfList({
         pubkey: currentPubkey,
         relayUrls: config().relayUrls,
       });
 
-      if (emojis.length === 0) {
+      if (fetched.length === 0) {
         window.alert(i18n.t('config.customEmoji.emojiListNotFound'));
         return;
       }
 
-      saveEmojis(emojis);
-      window.alert(
-        i18n.t('config.customEmoji.emojiListImported', { count: emojis.length, emojiSetCount }),
-      );
+      setEmojiSets(fetched);
     } catch (err) {
-      console.error('failed to import the emoji list', err);
+      console.error('failed to load the emoji list', err);
       const message = err instanceof Error ? `:${err.message}` : '';
       window.alert(`${i18n.t('config.customEmoji.failedToImportEmojiList')}${message}`);
     }
+  };
+
+  const handleImportSelectedEmojis = (selected: CustomEmojiConfig[]) => {
+    saveEmojis(selected);
+    setEmojiSets(null);
+    window.alert(i18n.t('config.customEmoji.emojiListImported', { count: selected.length }));
   };
 
   const emojis = () => Object.values(config().customEmojis);
@@ -75,51 +80,70 @@ const EmojiImportSection = () => {
     link.click();
   };
 
-  const handleClickImportEmojiList = () => {
-    if (importingEmojiList()) return;
-    setImportingEmojiList(true);
-    importEmojiList()
-      .finally(() => setImportingEmojiList(false))
+  const handleClickChooseEmojis = () => {
+    if (loadingEmojiSets()) return;
+    setLoadingEmojiSets(true);
+    loadEmojiSets()
+      .finally(() => setLoadingEmojiSets(false))
       .catch((err) => console.error(err));
   };
 
   return (
     <Section title={i18n.t('config.customEmoji.emojiImport')}>
-      <p>{i18n.t('config.customEmoji.emojiImportDescription')}</p>
-      <p>{i18n.t('config.customEmoji.importEmojiListDescription')}</p>
-      <p>{i18n.t('config.customEmoji.exportEmojiDescription')}</p>
-      <form class="flex flex-col gap-2" onSubmit={handleClickSaveEmoji}>
-        <textarea
-          class="flex-1 rounded-md border-border bg-bg placeholder:text-fg-secondary focus:border-border focus:ring-primary"
-          name="json"
-          value={jsonInput()}
-          placeholder='{ "smiley": "https://example.com/smiley.png" }'
-          onChange={(ev) => setJSONInput(ev.currentTarget.value)}
-        />
-        <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            class="rounded-sm border border-primary p-2 font-bold text-primary disabled:opacity-50"
-            disabled={pubkey() == null || importingEmojiList()}
-            onClick={handleClickImportEmojiList}
-          >
-            {importingEmojiList()
-              ? i18n.t('config.customEmoji.importingEmojiList')
-              : i18n.t('config.customEmoji.importEmojiList')}
-          </button>
-          <button
-            type="button"
-            class="w-24 rounded-sm border border-primary p-2 font-bold text-primary disabled:opacity-50"
-            disabled={emojis().length === 0}
-            onClick={handleClickExportEmoji}
-          >
-            {i18n.t('config.customEmoji.exportEmoji')}
-          </button>
-          <button type="submit" class="w-24 rounded-sm bg-primary p-2 font-bold text-primary-fg">
-            {i18n.t('config.customEmoji.importEmoji')}
-          </button>
-        </div>
-      </form>
+      <Show
+        when={emojiSets()}
+        fallback={
+          <>
+            <p>{i18n.t('config.customEmoji.emojiImportDescription')}</p>
+            <p>{i18n.t('config.customEmoji.chooseEmojisFromEmojiListDescription')}</p>
+            <p>{i18n.t('config.customEmoji.exportEmojiDescription')}</p>
+            <form class="flex flex-col gap-2" onSubmit={handleClickSaveEmoji}>
+              <textarea
+                class="flex-1 rounded-md border-border bg-bg placeholder:text-fg-secondary focus:border-border focus:ring-primary"
+                name="json"
+                value={jsonInput()}
+                placeholder='{ "smiley": "https://example.com/smiley.png" }'
+                onChange={(ev) => setJSONInput(ev.currentTarget.value)}
+              />
+              <div class="flex justify-end gap-2">
+                <button
+                  type="button"
+                  class="rounded-sm border border-primary p-2 font-bold text-primary disabled:opacity-50"
+                  disabled={pubkey() == null || loadingEmojiSets()}
+                  onClick={handleClickChooseEmojis}
+                >
+                  {loadingEmojiSets()
+                    ? i18n.t('config.customEmoji.loadingEmojiList')
+                    : i18n.t('config.customEmoji.chooseEmojisFromEmojiList')}
+                </button>
+                <button
+                  type="button"
+                  class="w-24 rounded-sm border border-primary p-2 font-bold text-primary disabled:opacity-50"
+                  disabled={emojis().length === 0}
+                  onClick={handleClickExportEmoji}
+                >
+                  {i18n.t('config.customEmoji.exportEmoji')}
+                </button>
+                <button
+                  type="submit"
+                  class="w-24 rounded-sm bg-primary p-2 font-bold text-primary-fg"
+                >
+                  {i18n.t('config.customEmoji.importEmoji')}
+                </button>
+              </div>
+            </form>
+          </>
+        }
+        keyed
+      >
+        {(loadedEmojiSets) => (
+          <EmojiSetPicker
+            emojiSets={loadedEmojiSets}
+            onImport={handleImportSelectedEmojis}
+            onCancel={() => setEmojiSets(null)}
+          />
+        )}
+      </Show>
     </Section>
   );
 };

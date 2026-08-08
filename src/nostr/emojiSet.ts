@@ -98,31 +98,54 @@ export const fetchEmojiSets = async ({
   });
 };
 
-export type FetchEmojiListEmojisResult = {
+/**
+ * An emoji set to choose emojis from. `title` is null for the emojis which the emoji list
+ * (kind:10030) holds by itself instead of referring to an emoji set.
+ */
+export type EmojiSetContent = {
+  id: string;
+  title: string | null;
   emojis: CustomEmojiConfig[];
-  emojiSetCount: number;
+};
+
+export const emojiSetTitle = (emojiSetEvent: NostrEvent): string => {
+  const tags = new Tags(emojiSetEvent.tags);
+  const title = tags.findFirstTagByName('title')?.[1];
+  if (title != null && title.length > 0) return title;
+  return tags.findFirstTagByName('d')?.[1] ?? '';
+};
+
+export const toEmojiSetContent = (emojiSetEvent: NostrEvent): EmojiSetContent => {
+  const identifier = new Tags(emojiSetEvent.tags).findFirstTagByName('d')?.[1] ?? '';
+  return {
+    id: emojiSetCoordinate({ pubkey: emojiSetEvent.pubkey, identifier }),
+    title: emojiSetTitle(emojiSetEvent),
+    emojis: customEmojis(emojiSetEvent),
+  };
 };
 
 /**
- * Collects every custom emoji of the user's emoji list (kind:10030): the emojis written in the
- * list itself and the emojis of all the emoji sets (kind:30030) which the list refers to.
+ * Collects the custom emojis of the user's emoji list (kind:10030) grouped by their emoji set
+ * (kind:30030), so that the user can choose which of them to add.
+ * Empty sets are dropped, and the emojis of the list itself come last with a null title.
  */
-export const fetchEmojiListEmojis = async ({
+export const fetchEmojiSetsOfList = async ({
   pubkey,
   relayUrls,
 }: {
   pubkey: string;
   relayUrls: string[];
-}): Promise<FetchEmojiListEmojisResult> => {
+}): Promise<EmojiSetContent[]> => {
   const emojiList = await fetchEmojiList({ pubkey, relayUrls });
-  if (emojiList == null) return { emojis: [], emojiSetCount: 0 };
+  if (emojiList == null) return [];
 
   const emojiSets = await fetchEmojiSets({ refs: emojiSetRefs(emojiList), relayUrls });
 
-  const emojis = [emojiList, ...emojiSets].flatMap(customEmojis);
+  const ownEmojis = customEmojis(emojiList);
+  const ownContent: EmojiSetContent[] =
+    ownEmojis.length > 0 ? [{ id: '', title: null, emojis: ownEmojis }] : [];
 
-  return {
-    emojis: uniqBy(emojis, ({ shortcode }) => shortcode),
-    emojiSetCount: emojiSets.length,
-  };
+  return [...emojiSets.map(toEmojiSetContent), ...ownContent].filter(
+    ({ emojis }) => emojis.length > 0,
+  );
 };

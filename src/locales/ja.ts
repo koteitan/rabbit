@@ -231,14 +231,24 @@ export default {
       emojiImportDescription:
         '絵文字の名前をキー、画像のURLを値とするJSONを読み込むことができます。',
       importEmoji: 'インポート',
-      importEmojiListDescription:
-        '「フォロー中の絵文字セットを追加」を押すと、絵文字リスト(kind:10030)に登録している絵文字と絵文字セット(kind:30030)の絵文字をすべて追加します。',
-      importEmojiList: 'フォロー中の絵文字セットを追加',
-      importingEmojiList: '追加中...',
-      emojiListImported_one:
-        '{{emojiSetCount}}個の絵文字セットから{{count}}個の絵文字をインポートしました',
-      emojiListImported_other:
-        '{{emojiSetCount}}個の絵文字セットから{{count}}個の絵文字をインポートしました',
+      chooseEmojisFromEmojiListDescription:
+        '「絵文字セットから選ぶ」を押すと、絵文字リスト(kind:10030)に登録している絵文字セット(kind:30030)の中から、追加する絵文字を選べます。',
+      chooseEmojisFromEmojiList: '絵文字セットから選ぶ',
+      loadingEmojiList: '読み込み中...',
+      chooseEmojisDescription: '追加する絵文字を選んでください。',
+      selectAll: 'すべて選択',
+      deselectAll: 'すべて解除',
+      numberOfSelectedEmojis_one: '{{count}}/{{total}}個を選択中',
+      numberOfSelectedEmojis_other: '{{count}}/{{total}}個を選択中',
+      emojisInEmojiList: '絵文字リストに直接登録された絵文字',
+      alreadyRegistered: '登録済み',
+      duplicatedShortcodes:
+        '名前が重複しています: {{shortcodes}}。あとに選んだものが優先されます。',
+      cancel: 'キャンセル',
+      addSelectedEmojis_one: '{{count}}個を追加',
+      addSelectedEmojis_other: '{{count}}個を追加',
+      emojiListImported_one: '{{count}}個の絵文字をインポートしました',
+      emojiListImported_other: '{{count}}個の絵文字をインポートしました',
       emojiListNotFound: '絵文字リスト(kind:10030)が見つかりませんでした',
       failedToImportEmojiList: '絵文字リストの読み込みに失敗しました',
       exportEmojiDescription:

@@ -3,7 +3,13 @@ import assert from 'assert';
 import { type Event as NostrEvent } from 'nostr-tools/pure';
 import { describe, it } from 'vitest';
 
-import { customEmojis, emojiSetRefs, parseEmojiSetCoordinate } from '@/nostr/emojiSet';
+import {
+  customEmojis,
+  emojiSetRefs,
+  emojiSetTitle,
+  parseEmojiSetCoordinate,
+  toEmojiSetContent,
+} from '@/nostr/emojiSet';
 
 const pubkeyA = 'fbcc9e7d6182a9d24ab622123f640d700298c43ccc30dc73aaf2a26d485543b8';
 const pubkeyB = '6e62e578bdf608e250e93c25dc0cbadbda8db17e6fc3a28cdce8a2f56db7d106';
@@ -92,5 +98,55 @@ describe('customEmojis', () => {
     assert.deepStrictEqual(actual, [
       { shortcode: 'foo', url: 'https://example.com/emoji_foo.png' },
     ]);
+  });
+});
+
+describe('emojiSetTitle', () => {
+  it('should use the title tag', () => {
+    const actual = emojiSetTitle(
+      event([
+        ['d', 'animals'],
+        ['title', 'Cute Animals'],
+      ]),
+    );
+    assert.strictEqual(actual, 'Cute Animals');
+  });
+
+  it('should fall back to the identifier when the title is missing or empty', () => {
+    assert.strictEqual(emojiSetTitle(event([['d', 'animals']])), 'animals');
+    assert.strictEqual(
+      emojiSetTitle(
+        event([
+          ['d', 'animals'],
+          ['title', ''],
+        ]),
+      ),
+      'animals',
+    );
+  });
+
+  it('should return an empty string when both are missing', () => {
+    assert.strictEqual(emojiSetTitle(event([])), '');
+  });
+});
+
+describe('toEmojiSetContent', () => {
+  it('should build a content keyed by its coordinate', () => {
+    const actual = toEmojiSetContent(
+      event([
+        ['d', 'animals'],
+        ['title', 'Cute Animals'],
+        ['emoji', 'cat', 'https://example.com/cat.png'],
+        ['emoji', 'dog', 'https://example.com/dog.png'],
+      ]),
+    );
+    assert.deepStrictEqual(actual, {
+      id: `30030:${pubkeyA}:animals`,
+      title: 'Cute Animals',
+      emojis: [
+        { shortcode: 'cat', url: 'https://example.com/cat.png' },
+        { shortcode: 'dog', url: 'https://example.com/dog.png' },
+      ],
+    });
   });
 });
