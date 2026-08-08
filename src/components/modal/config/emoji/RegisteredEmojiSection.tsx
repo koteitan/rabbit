@@ -1,32 +1,20 @@
-import { createMemo, createSignal, For, type JSX } from 'solid-js';
+import { createMemo, For } from 'solid-js';
 
 import SelectableEmoji from '@/components/modal/config/emoji/SelectableEmoji';
 import useEmojiSelection from '@/components/modal/config/emoji/useEmojiSelection';
 import Section from '@/components/modal/config/Section';
 import useConfig from '@/core/useConfig';
 import { useTranslation } from '@/i18n/useTranslation';
-import { HttpUrlRegex } from '@/utils/regex';
 
-const EmojiSection = () => {
+const RegisteredEmojiSection = () => {
   const i18n = useTranslation();
-  const { config, saveEmoji, removeEmojis } = useConfig();
-
-  const [shortcodeInput, setShortcodeInput] = createSignal('');
-  const [urlInput, setUrlInput] = createSignal('');
+  const { config, removeEmojis } = useConfig();
 
   const selection = useEmojiSelection();
 
   // the shortcode is unique in the config, so it identifies an emoji by itself here
   const emojis = createMemo(() => Object.values(config().customEmojis));
   const shortcodes = () => emojis().map(({ shortcode }) => shortcode);
-
-  const handleClickSaveEmoji: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (ev) => {
-    ev.preventDefault();
-    if (shortcodeInput().length === 0 || urlInput().length === 0) return;
-    saveEmoji({ shortcode: shortcodeInput(), url: urlInput() });
-    setShortcodeInput('');
-    setUrlInput('');
-  };
 
   const handleClickRemoveSelected = () => {
     const selected = shortcodes().filter((shortcode) => selection.isSelected(shortcode));
@@ -41,43 +29,8 @@ const EmojiSection = () => {
   };
 
   return (
-    <Section title={i18n.t('config.customEmoji.customEmoji')}>
-      <form class="flex flex-col gap-2" onSubmit={handleClickSaveEmoji}>
-        <label class="flex flex-1 items-center gap-1">
-          <div class="w-9">{i18n.t('config.customEmoji.shortcode')}</div>
-          <input
-            class="flex-1 rounded-md border-border bg-bg placeholder:text-fg-secondary focus:border-border focus:ring-primary"
-            type="text"
-            name="shortcode"
-            placeholder="smiley"
-            value={shortcodeInput()}
-            pattern="^[\\w-]+$"
-            required
-            onChange={(ev) => setShortcodeInput(ev.currentTarget.value)}
-          />
-        </label>
-        <label class="flex flex-1 items-center gap-1">
-          <div class="w-9">{i18n.t('config.customEmoji.url')}</div>
-          <input
-            class="flex-1 rounded-md border-border bg-bg placeholder:text-fg-secondary focus:border-border focus:ring-primary"
-            type="text"
-            name="url"
-            value={urlInput()}
-            placeholder="https://example.com/smiley.png"
-            pattern={HttpUrlRegex}
-            required
-            onChange={(ev) => setUrlInput(ev.currentTarget.value)}
-          />
-        </label>
-        <button
-          type="submit"
-          class="w-24 self-end rounded-sm bg-primary p-2 font-bold text-primary-fg"
-        >
-          {i18n.t('config.customEmoji.addEmoji')}
-        </button>
-      </form>
-
-      <div class="mt-4 flex items-center gap-2 border-t border-border pt-2">
+    <Section title={i18n.t('config.customEmoji.registeredEmojis')}>
+      <div class="flex items-center gap-2">
         <button
           type="button"
           class="rounded-sm border border-primary px-2 py-1 text-sm font-bold text-primary"
@@ -129,4 +82,4 @@ const EmojiSection = () => {
   );
 };
 
-export default EmojiSection;
+export default RegisteredEmojiSection;

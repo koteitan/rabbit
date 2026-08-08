@@ -14,8 +14,12 @@ import DateFormatSection from '@/components/modal/config/display/DateFormatSecti
 import EmbeddingSection from '@/components/modal/config/display/EmbeddingSection';
 import OtherSection from '@/components/modal/config/display/OtherSection';
 import ReactionSection from '@/components/modal/config/display/ReactionSection';
-import EmojiImportSection from '@/components/modal/config/emoji/EmojiImportSection';
-import EmojiSection from '@/components/modal/config/emoji/EmojiSection';
+import CreateEmojiSection from '@/components/modal/config/emoji/CreateEmojiSection';
+import EmojiSetImportSection from '@/components/modal/config/emoji/EmojiSetImportSection';
+import FileExportSection from '@/components/modal/config/emoji/FileExportSection';
+import FileImportSection from '@/components/modal/config/emoji/FileImportSection';
+import RegisteredEmojiSection from '@/components/modal/config/emoji/RegisteredEmojiSection';
+import TextImportSection from '@/components/modal/config/emoji/TextImportSection';
 import MuteConfig from '@/components/modal/config/mute/MuteConfig';
 import FileServerSection from '@/components/modal/config/posting/FileServerSection';
 import BackupSection from '@/components/modal/config/profile/BackupSection';
@@ -74,8 +78,12 @@ const ConfigUI = (props: ConfigProps) => {
       icon: () => <FaceSmile />,
       render: () => (
         <>
-          <EmojiSection />
-          <EmojiImportSection />
+          <RegisteredEmojiSection />
+          <CreateEmojiSection />
+          <EmojiSetImportSection />
+          <FileImportSection />
+          <TextImportSection />
+          <FileExportSection />
         </>
       ),
     },
