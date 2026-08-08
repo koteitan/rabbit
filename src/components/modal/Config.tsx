@@ -15,6 +15,7 @@ import EmbeddingSection from '@/components/modal/config/display/EmbeddingSection
 import OtherSection from '@/components/modal/config/display/OtherSection';
 import ReactionSection from '@/components/modal/config/display/ReactionSection';
 import CreateEmojiSection from '@/components/modal/config/emoji/CreateEmojiSection';
+import EmojiSetEditSection from '@/components/modal/config/emoji/EmojiSetEditSection';
 import EmojiSetImportSection from '@/components/modal/config/emoji/EmojiSetImportSection';
 import FileExportSection from '@/components/modal/config/emoji/FileExportSection';
 import FileImportSection from '@/components/modal/config/emoji/FileImportSection';
@@ -84,6 +85,7 @@ const ConfigUI = (props: ConfigProps) => {
           <FileImportSection />
           <TextImportSection />
           <FileExportSection />
+          <EmojiSetEditSection />
         </>
       ),
     },

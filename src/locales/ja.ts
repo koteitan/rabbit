@@ -268,6 +268,10 @@ export default {
       exportToFileDescription:
         '登録中の絵文字を、ここからインポートできるJSONファイルとして保存します。',
       exportEmoji: 'エクスポート',
+      editEmojiSets: '絵文字セットの編集',
+      editEmojiSetsDescription:
+        '絵文字セット(kind:30030)や絵文字リスト(kind:10030)の作成・編集は emoemo で行えます。',
+      editOnEmoemo: 'emoemo で編集',
     },
     mute: {
       mute: 'ミュート',

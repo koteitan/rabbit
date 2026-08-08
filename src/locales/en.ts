@@ -272,6 +272,10 @@ export default {
       exportToFileDescription:
         'Save the registered emojis as a JSON file which can be imported here.',
       exportEmoji: 'Export',
+      editEmojiSets: 'Edit emoji sets',
+      editEmojiSetsDescription:
+        'You can create and edit emoji sets (kind:30030) and your emoji list (kind:10030) on emoemo.',
+      editOnEmoemo: 'Edit on emoemo',
     },
     mute: {
       mute: 'Mute',
