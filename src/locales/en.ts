@@ -245,6 +245,7 @@ export default {
       importFromEmojiSetsDescription:
         'Pick the emojis to add from the emoji sets (kind:30030) of your emoji list (kind:10030).',
       loadEmojiSets: 'Load emoji sets',
+      reloadEmojiSets: 'Reload',
       loadingEmojiSets: 'Loading...',
       chooseEmojisDescription: 'Choose the emojis to add.',
       emojisInEmojiList: 'Emojis in the emoji list itself',

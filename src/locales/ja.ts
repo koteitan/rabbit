@@ -240,6 +240,7 @@ export default {
       importFromEmojiSetsDescription:
         '絵文字リスト(kind:10030)に登録している絵文字セット(kind:30030)の中から、追加する絵文字を選べます。',
       loadEmojiSets: '絵文字セットを読み込む',
+      reloadEmojiSets: '再読み込み',
       loadingEmojiSets: '読み込み中...',
       chooseEmojisDescription: '追加する絵文字を選んでください。',
       emojisInEmojiList: '絵文字リストに直接登録された絵文字',

@@ -71,11 +71,13 @@ const EmojiSetImportSection = () => {
             </button>
           </div>
         }
-        keyed
       >
+        {/* not keyed, so that a reload replaces the emoji sets without losing the selection */}
         {(loadedEmojiSets) => (
           <EmojiSetPicker
-            emojiSets={loadedEmojiSets}
+            emojiSets={loadedEmojiSets()}
+            reloading={loading()}
+            onReload={handleClickLoad}
             onImport={handleImportSelected}
             onCancel={() => setEmojiSets(null)}
           />

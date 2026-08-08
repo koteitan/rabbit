@@ -13,6 +13,8 @@ import { type EmojiSetContent } from '@/nostr/emojiSet';
 
 export type EmojiSetPickerProps = {
   emojiSets: EmojiSetContent[];
+  reloading: boolean;
+  onReload: () => void;
   onImport: (emojis: CustomEmojiConfig[]) => void;
   onCancel: () => void;
 };
@@ -71,10 +73,13 @@ const EmojiSetPicker: Component<EmojiSetPickerProps> = (props) => {
     return 'indeterminate';
   };
 
-  const selectedEmojis = (): CustomEmojiConfig[] =>
+  // derived from the emoji sets rather than from the selection itself, so that a selection left
+  // over from a set which disappeared on a reload is not counted
+  const selectedEmojis = createMemo((): CustomEmojiConfig[] =>
     props.emojiSets.flatMap(({ id, emojis }) =>
       emojis.filter(({ shortcode }) => selection.isSelected(emojiKey(id, shortcode))),
-    );
+    ),
+  );
 
   // the last one wins on saveEmojis, so warn before it silently happens
   const duplicatedShortcodes = createMemo(() => {
@@ -104,9 +109,19 @@ const EmojiSetPicker: Component<EmojiSetPickerProps> = (props) => {
         >
           {i18n.t('config.customEmoji.deselectAll')}
         </button>
+        <button
+          type="button"
+          class="rounded-sm border border-primary px-2 py-1 text-sm font-bold text-primary disabled:opacity-50"
+          disabled={props.reloading}
+          onClick={() => props.onReload()}
+        >
+          {props.reloading
+            ? i18n.t('config.customEmoji.loadingEmojiSets')
+            : i18n.t('config.customEmoji.reloadEmojiSets')}
+        </button>
         <div class="flex-1 text-end text-sm text-fg-secondary">
           {i18n.t('config.customEmoji.numberOfSelectedEmojis', {
-            count: selection.selectedKeys().size,
+            count: selectedEmojis().length,
             total: allKeys().length,
           })}
         </div>
@@ -186,10 +201,10 @@ const EmojiSetPicker: Component<EmojiSetPickerProps> = (props) => {
         <button
           type="button"
           class="rounded-sm bg-primary p-2 font-bold text-primary-fg disabled:opacity-50"
-          disabled={selection.selectedKeys().size === 0}
+          disabled={selectedEmojis().length === 0}
           onClick={() => props.onImport(selectedEmojis())}
         >
-          {i18n.t('config.customEmoji.addSelectedEmojis', { count: selection.selectedKeys().size })}
+          {i18n.t('config.customEmoji.addSelectedEmojis', { count: selectedEmojis().length })}
         </button>
       </div>
     </div>
