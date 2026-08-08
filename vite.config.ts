@@ -6,6 +6,8 @@ import solidPlugin from 'vite-plugin-solid';
 import solidSvg from 'vite-plugin-solid-svg';
 
 export default defineConfig({
+  // deployed as a GitHub Pages project site: https://koteitan.github.io/rabbit/
+  base: '/rabbit/',
   plugins: [
     solidPlugin(),
     solidSvg(),
