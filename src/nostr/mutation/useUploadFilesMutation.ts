@@ -6,13 +6,14 @@ import { fileUploadResponseToImetaTag, upload } from '@/utils/imageUpload';
 
 export type UseUploadFilesMutationResult = {
   urls: string[];
+  uploadedFiles: [File, string][];
   uploadedImetaTags: Record<string, string[]>;
   failed: [File, string][];
 };
 
 export type UseUploadFilesMutationProps = {
   // onSuccess callback function of mutation.mutate() is not called. This is workaround.
-  onSuccess: (result: UseUploadFilesMutationResult) => void;
+  onSuccess?: (result: UseUploadFilesMutationResult) => void;
 };
 
 const useUploadFilesMutation = (propsProvider: () => UseUploadFilesMutationProps) => {
@@ -26,6 +27,7 @@ const useUploadFilesMutation = (propsProvider: () => UseUploadFilesMutationProps
       const uploadResults = await upload(config().fileServer)(files);
 
       const urls: string[] = [];
+      const uploadedFiles: [File, string][] = [];
       const uploadedImetaTags: Record<string, string[]> = {};
       const failed: [File, string][] = [];
 
@@ -43,6 +45,7 @@ const useUploadFilesMutation = (propsProvider: () => UseUploadFilesMutationProps
             }
             const url = urlTag[1];
             urls.push(url);
+            uploadedFiles.push([files[i], url]);
 
             const imetaTag = fileUploadResponseToImetaTag(result.value);
             if (imetaTag != null) {
@@ -58,11 +61,11 @@ const useUploadFilesMutation = (propsProvider: () => UseUploadFilesMutationProps
         }
       });
 
-      return { urls, uploadedImetaTags, failed };
+      return { urls, uploadedFiles, uploadedImetaTags, failed };
     },
     onSuccess: (data) => {
       console.log('Succeeded to upload files', data);
-      props.onSuccess(data);
+      props.onSuccess?.(data);
     },
     onError: (err) => {
       console.error('failed to upload images: ', err);

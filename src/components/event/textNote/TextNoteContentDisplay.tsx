@@ -1,5 +1,6 @@
 import { For } from 'solid-js';
 
+import escapeRegExp from 'lodash/escapeRegExp';
 import * as Kind from 'nostr-tools/kinds';
 
 import EventDisplayById from '@/components/event/EventDisplayById';
@@ -22,10 +23,23 @@ import {
 } from '@/nostr/parseTextNote';
 import { isImageUrl, isVideoUrl, isAudioUrl, isWebSocketUrl, isSafeUrl } from '@/utils/url';
 
+export type LocalMedia = {
+  type: 'image' | 'video';
+  url: string;
+};
+
 export type TextNoteContentDisplayProps = {
   parsed: ParsedTextNoteResolved;
   embedding: boolean;
   initialHidden?: boolean;
+  // maps a placeholder in the text to local media shown in its place
+  localMedia?: Record<string, LocalMedia>;
+};
+
+const splitByPlaceholders = (text: string, placeholders: string[]): string[] => {
+  if (placeholders.length === 0) return [text];
+  const pattern = new RegExp(`(${placeholders.map(escapeRegExp).join('|')})`, 'g');
+  return text.split(pattern).filter((part) => part !== '');
 };
 
 const TextNoteContentDisplay = (props: TextNoteContentDisplayProps) => {
@@ -47,7 +61,32 @@ const TextNoteContentDisplay = (props: TextNoteContentDisplayProps) => {
     <For each={props.parsed}>
       {(item: ParsedTextNoteResolvedNode) => {
         if (item.type === 'PlainText') {
-          return <span>{item.content}</span>;
+          if (props.localMedia == null) return <span>{item.content}</span>;
+          return (
+            <For each={splitByPlaceholders(item.content, Object.keys(props.localMedia))}>
+              {(part) => {
+                const media = props.localMedia?.[part];
+                if (media == null) return <span>{part}</span>;
+                if (media.type === 'video') {
+                  return (
+                    // eslint-disable-next-line jsx-a11y/media-has-caption
+                    <video
+                      class="my-2 block max-h-64 max-w-full rounded-sm object-contain shadow-sm"
+                      src={media.url}
+                      controls
+                    />
+                  );
+                }
+                return (
+                  <img
+                    class="my-2 block max-h-64 max-w-full rounded-sm object-contain shadow-sm"
+                    src={media.url}
+                    alt={part}
+                  />
+                );
+              }}
+            </For>
+          );
         }
         if (item.type === 'URL') {
           const initialHidden = () =>
