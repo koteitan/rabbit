@@ -94,7 +94,21 @@ const NotePostForm: Component<NotePostFormProps> = (props) => {
   const [imetaTags, setImetaTags] = createSignal<Record<string, string[]>>({});
   const [lastUsedHashTags, setLastUsedHashTags] = createSignal<string[]>([]);
 
-  const appendText = (s: string) => setText((current) => (current === '' ? s : `${current} ${s}`));
+  // replaces the selection (or inserts at the caret) and moves the caret after the inserted text.
+  // surrounds it with spaces unless already separated
+  const insertTextAtCursor = (s: string) => {
+    const current = text();
+    const start = textAreaRef?.selectionStart ?? current.length;
+    const end = textAreaRef?.selectionEnd ?? current.length;
+    const before = current.slice(0, start);
+    const after = current.slice(end);
+    const leading = before === '' || /\s$/.test(before) ? '' : ' ';
+    const trailing = after === '' || /^\s/.test(after) ? '' : ' ';
+    const inserted = `${leading}${s}${trailing}`;
+    setText(`${before}${inserted}${after}`);
+    const caret = before.length + inserted.length;
+    textAreaRef?.setSelectionRange(caret, caret);
+  };
 
   const resetText = () => {
     setText(
@@ -141,7 +155,7 @@ const NotePostForm: Component<NotePostFormProps> = (props) => {
   const uploadFilesMutation = useUploadFilesMutation(() => ({
     onSuccess: ({ urls, uploadedImetaTags, failed }) => {
       if (urls.length > 0) {
-        appendText(urls.join(' '));
+        insertTextAtCursor(urls.join(' '));
         resizeTextArea();
         setImetaTags((current) => ({ ...current, ...uploadedImetaTags }));
       }
@@ -252,7 +266,7 @@ const NotePostForm: Component<NotePostFormProps> = (props) => {
   };
 
   const handleEmojiSelect = (emoji: EmojiData) => {
-    appendText(emoji.native ?? `:${emoji.id}:`);
+    insertTextAtCursor(emoji.native ?? `:${emoji.id}:`);
     textAreaRef?.focus();
   };
 
