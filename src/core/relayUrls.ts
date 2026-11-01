@@ -14,8 +14,4 @@ export const relaysForJapaneseTL: string[] = [
 
 export const relaysInJP: string[] = [...relaysForJapaneseTL];
 
-export const relaysForSearching: string[] = [
-  'wss://relay.nostr.band',
-  'wss://search.nos.today',
-  'wss://r.kojira.io',
-];
+export const relaysForSearching: string[] = ['wss://search.nos.today', 'wss://r.kojira.io'];
