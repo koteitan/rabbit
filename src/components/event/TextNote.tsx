@@ -6,7 +6,9 @@ import Actions from '@/components/Actions';
 import EventDisplayById from '@/components/event/EventDisplayById';
 import ContentWarningDisplay from '@/components/event/textNote/ContentWarningDisplay';
 import GeneralUserMentionDisplay from '@/components/event/textNote/GeneralUserMentionDisplay';
-import TextNoteContentDisplay from '@/components/event/textNote/TextNoteContentDisplay';
+import TextNoteContentDisplay, {
+  type LocalMedia,
+} from '@/components/event/textNote/TextNoteContentDisplay';
 import NotePostForm from '@/components/NotePostForm';
 import Post from '@/components/Post';
 import { useTimelineContext } from '@/components/timeline/TimelineContext';
@@ -19,6 +21,7 @@ export type TextNoteProps = {
   event: NostrEvent;
   embedding?: boolean;
   actions?: boolean;
+  localMedia?: Record<string, LocalMedia>;
 };
 
 const TextNote: Component<TextNoteProps> = (props) => {
@@ -104,6 +107,7 @@ const TextNote: Component<TextNoteProps> = (props) => {
                   parsed={event().parsed()}
                   embedding={embedding()}
                   initialHidden={event().contentWarning().contentWarning}
+                  localMedia={props.localMedia}
                 />
               </div>
             </ContentWarningDisplay>
