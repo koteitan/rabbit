@@ -12,7 +12,7 @@ import TextNote from '@/components/event/TextNote';
 import useEmojiPicker, { type EmojiData } from '@/components/useEmojiPicker';
 import UserNameDisplay from '@/components/UserDisplayName';
 import useConfig from '@/core/useConfig';
-import useEmojiComplete from '@/hooks/useEmojiComplete';
+import useTextComplete from '@/hooks/useTextComplete';
 import { useTranslation } from '@/i18n/useTranslation';
 import createTextNote, { type CreateTextNoteParams } from '@/nostr/builder/createTextNote';
 import { textNote } from '@/nostr/event';
@@ -102,7 +102,6 @@ const NotePostForm: Component<NotePostFormProps> = (props) => {
   let contentWarningReasonRef: HTMLInputElement | undefined;
   let fileInputRef: HTMLInputElement | undefined;
 
-  const { elementRef: emojiTextAreaRef } = useEmojiComplete();
   const [text, setText] = createSignal<string>('');
   const [contentWarning, setContentWarning] = createSignal(false);
   const [contentWarningReason, setContentWarningReason] = createSignal('');
@@ -259,6 +258,10 @@ const NotePostForm: Component<NotePostFormProps> = (props) => {
     ]);
   });
 
+  const { elementRef: textCompleteRef } = useTextComplete(() => ({
+    firstPubkeys: notifyPubkeys(),
+  }));
+
   const buildEmojiTags = (emojis: string[]): string[][] => {
     const emojiTags: string[][] = [];
 
@@ -376,6 +379,8 @@ const NotePostForm: Component<NotePostFormProps> = (props) => {
   };
 
   const handleKeyDown: JSX.EventHandlerUnion<HTMLTextAreaElement, KeyboardEvent> = (ev) => {
+    // the completion dropdown prevents the default of the keys it consumes
+    if (ev.defaultPrevented) return;
     if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) {
       submit().catch((err) => console.error(err));
     } else if (ev.key === 'Escape' && !uploadFilesMutation.isPending) {
@@ -490,7 +495,7 @@ const NotePostForm: Component<NotePostFormProps> = (props) => {
           ref={(el) => {
             textAreaRef = el;
             props.textAreaRef?.(el);
-            emojiTextAreaRef(el);
+            textCompleteRef(el);
           }}
           name="text"
           class="scrollbar max-h-[40vh] min-h-16 overflow-y-auto rounded-md border border-border bg-bg wrap-break-word whitespace-pre-wrap ring-border placeholder:text-fg-secondary focus:border-border focus:ring-primary"

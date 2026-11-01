@@ -1,6 +1,11 @@
 import { createMemo } from 'solid-js';
 
-import { createQuery, useQueryClient, type UseQueryResult } from '@tanstack/solid-query';
+import {
+  createQuery,
+  useQueryClient,
+  type QueryClient,
+  type UseQueryResult,
+} from '@tanstack/solid-query';
 import { type Event as NostrEvent } from 'nostr-tools/pure';
 
 import {
@@ -35,28 +40,30 @@ export type UseProfiles = {
 
 export const queryKeyUseProfile = (props: UseProfileProps | null) => ['useProfile', props] as const;
 
+// shared with prefetchQuery, which fills the same cache as useProfile
+export const profileQueryOptions = (queryClient: QueryClient, props: UseProfileProps | null) => ({
+  queryKey: queryKeyUseProfile(props),
+  queryFn: latestEventQuery<ReturnType<typeof queryKeyUseProfile>>({
+    taskProvider: ([, currentProps]) => {
+      if (currentProps == null) return null;
+      const { pubkey } = currentProps;
+      return new BatchedEventsTask<ProfileTask>({ type: 'Profile', pubkey });
+    },
+    queryClient,
+  }),
+  // Profiles are updated occasionally, so a short staleTime is used here.
+  // gcTime is long so that the user see profiles instantly.
+  staleTime: 5 * 60 * 1000, // 5 min
+  gcTime: 3 * 24 * 60 * 60 * 1000, // 3 days
+  refetchInterval: 5 * 60 * 1000, // 5 min
+  refetchOnWindowFocus: false,
+});
+
 const useProfile = (propsProvider: () => UseProfileProps | null): UseProfile => {
   const queryClient = useQueryClient();
   const props = createMemo(propsProvider);
-  const genQueryKey = createMemo(() => queryKeyUseProfile(props()));
 
-  const query = createQuery(() => ({
-    queryKey: genQueryKey(),
-    queryFn: latestEventQuery<ReturnType<typeof genQueryKey>>({
-      taskProvider: ([, currentProps]) => {
-        if (currentProps == null) return null;
-        const { pubkey } = currentProps;
-        return new BatchedEventsTask<ProfileTask>({ type: 'Profile', pubkey });
-      },
-      queryClient,
-    }),
-    // Profiles are updated occasionally, so a short staleTime is used here.
-    // gcTime is long so that the user see profiles instantly.
-    staleTime: 5 * 60 * 1000, // 5 min
-    gcTime: 3 * 24 * 60 * 60 * 1000, // 3 days
-    refetchInterval: 5 * 60 * 1000, // 5 min
-    refetchOnWindowFocus: false,
-  }));
+  const query = createQuery(() => profileQueryOptions(queryClient, props()));
 
   const event = () => query.data;
 
