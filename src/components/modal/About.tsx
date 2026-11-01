@@ -61,7 +61,7 @@ const About: Component<AboutProps> = (props) => {
           </h1>
         </div>
 
-        <div class="my-4 flex justify-center gap-3">
+        <div class="my-4 flex flex-wrap justify-center gap-3">
           <SafeLink
             class="rounded-sm border-2 border-primary px-4 py-2 font-bold text-primary hover:border-primary-hover hover:text-primary-hover"
             href="https://github.com/koteitan/rabbit/issues/new/choose"
@@ -73,6 +73,12 @@ const About: Component<AboutProps> = (props) => {
             href="https://github.com/koteitan/rabbit"
           >
             {i18n.t('about.sourceCode')}
+          </SafeLink>
+          <SafeLink
+            class="rounded-sm border-2 border-primary px-4 py-2 font-bold text-primary hover:border-primary-hover hover:text-primary-hover"
+            href="https://github.com/koteitan/rabbit/blob/main/CHANGELOG.md"
+          >
+            {i18n.t('about.changelog')}
           </SafeLink>
         </div>
 

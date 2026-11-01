@@ -307,6 +307,7 @@ export default {
   about: {
     bugReport: 'バグ報告',
     sourceCode: 'ソースコード',
+    changelog: '魔改造歴',
     termOfService: '利用規約',
     agplText: stripMargin`
       このプログラムは自由ソフトウェアです。

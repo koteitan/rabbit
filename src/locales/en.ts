@@ -311,6 +311,7 @@ export default {
   about: {
     bugReport: 'Report bug',
     sourceCode: 'Source code',
+    changelog: 'Changelog',
     termOfService: 'License',
     agplText: stripMargin`
       This program is free software:
