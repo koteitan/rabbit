@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onCleanup } from 'solid-js';
+import { createEffect, createSignal, onCleanup, untrack } from 'solid-js';
 
 import { useQueryClient } from '@tanstack/solid-query';
 import { Textcomplete } from '@textcomplete/core';
@@ -24,9 +24,13 @@ const SearchDebounceMs = 400;
 const mentionRegex = /(?<![\w/.])[@＠]([^\s@＠]*)$/;
 
 export type UseTextCompleteProps = {
+  // completes mentions by `@` in addition to custom emojis (default: true)
+  mention?: boolean;
   // users listed first in the mention candidates, such as the users replied to
   firstPubkeys?: string[];
 };
+
+type CompletableElement = HTMLTextAreaElement | HTMLInputElement;
 
 const useTextComplete = (propsProvider: () => UseTextCompleteProps = () => ({})) => {
   const { searchEmojis } = useConfig();
@@ -37,9 +41,9 @@ const useTextComplete = (propsProvider: () => UseTextCompleteProps = () => ({}))
     return p != null ? { pubkey: p } : null;
   });
 
-  const [elementRef, setElementRef] = createSignal<HTMLTextAreaElement | undefined>();
-  // the textarea completed now, read outside the reactive scope
-  let textarea: HTMLTextAreaElement | undefined;
+  const [elementRef, setElementRef] = createSignal<CompletableElement | undefined>();
+  // the element completed now, read outside the reactive scope
+  let textarea: CompletableElement | undefined;
 
   const npubs = new Map<string, string>();
   const npubOf = (pk: string) => {
@@ -85,7 +89,7 @@ const useTextComplete = (propsProvider: () => UseTextCompleteProps = () => ({}))
   };
 
   const currentMentionTerm = (): string | undefined =>
-    textarea?.value.slice(0, textarea.selectionEnd).match(mentionRegex)?.[1];
+    textarea?.value.slice(0, textarea.selectionEnd ?? undefined).match(mentionRegex)?.[1];
 
   let searchTimer: ReturnType<typeof setTimeout> | undefined;
   onCleanup(() => clearTimeout(searchTimer));
@@ -124,8 +128,10 @@ const useTextComplete = (propsProvider: () => UseTextCompleteProps = () => ({}))
     const el = elementRef();
     textarea = el;
     if (el == null) return;
+    const mention = untrack(() => propsProvider().mention) !== false;
 
-    const editor = new TextareaEditor(el);
+    // TextareaEditor works with <input> too: it only reads the value and the selection
+    const editor = new TextareaEditor(el as HTMLTextAreaElement);
     const textcomplete = new Textcomplete(
       editor,
       [
@@ -146,35 +152,40 @@ const useTextComplete = (propsProvider: () => UseTextCompleteProps = () => ({}))
           },
           replace: (result: CustomEmojiConfig) => `:${result.shortcode}: `,
         },
-        {
-          id: 'mention',
-          match: mentionRegex,
-          search: searchMentions,
-          template: (user: UserCandidate) => {
-            const { npub, profile } = user;
-            const displayName = profile?.display_name || profile?.name || `${npub.slice(0, 12)}…`;
-            const e = (
-              <div class="flex items-center gap-1 border-b border-border px-2 py-1">
-                {profile?.picture != null ? (
-                  <img
-                    class="size-6 shrink-0 rounded-sm object-cover"
-                    src={thumbnailUrl(profile.picture, 'icon')}
-                    alt=""
-                    referrerpolicy="no-referrer"
-                  />
-                ) : (
-                  <div class="size-6 shrink-0" />
-                )}
-                <span class="truncate font-bold">{displayName}</span>
-                {profile?.display_name && profile.name ? (
-                  <span class="truncate text-fg-secondary">@{profile.name}</span>
-                ) : null}
-              </div>
-            ) as HTMLElement;
-            return e.outerHTML;
-          },
-          replace: (user: UserCandidate) => `nostr:${user.npub} `,
-        },
+        ...(!mention
+          ? []
+          : [
+              {
+                id: 'mention',
+                match: mentionRegex,
+                search: searchMentions,
+                template: (user: UserCandidate) => {
+                  const { npub, profile } = user;
+                  const displayName =
+                    profile?.display_name || profile?.name || `${npub.slice(0, 12)}…`;
+                  const e = (
+                    <div class="flex items-center gap-1 border-b border-border px-2 py-1">
+                      {profile?.picture != null ? (
+                        <img
+                          class="size-6 shrink-0 rounded-sm object-cover"
+                          src={thumbnailUrl(profile.picture, 'icon')}
+                          alt=""
+                          referrerpolicy="no-referrer"
+                        />
+                      ) : (
+                        <div class="size-6 shrink-0" />
+                      )}
+                      <span class="truncate font-bold">{displayName}</span>
+                      {profile?.display_name && profile.name ? (
+                        <span class="truncate text-fg-secondary">@{profile.name}</span>
+                      ) : null}
+                    </div>
+                  ) as HTMLElement;
+                  return e.outerHTML;
+                },
+                replace: (user: UserCandidate) => `nostr:${user.npub} `,
+              },
+            ]),
       ],
       {
         dropdown: {
