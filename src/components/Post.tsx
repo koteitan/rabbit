@@ -14,6 +14,8 @@ export type PostProps = {
   content: JSX.Element;
   actions?: JSX.Element;
   footer?: JSX.Element;
+  // shows the whole content instead of cutting a long one at the window height
+  fullContent?: boolean;
   onShowProfile?: () => void;
   onShowEvent?: () => void;
 };
@@ -101,11 +103,14 @@ const Post: Component<PostProps> = (props) => {
           <div
             ref={elementRef}
             class="overflow-hidden"
-            classList={{ 'max-h-screen': !showOverflow(), 'max-h-none': showOverflow() }}
+            classList={{
+              'max-h-screen': !showOverflow() && !props.fullContent,
+              'max-h-none': showOverflow() || props.fullContent,
+            }}
           >
             {props.content}
           </div>
-          <Show when={overflow()}>
+          <Show when={overflow() && !props.fullContent}>
             <button
               class="mt-2 w-full rounded-sm border border-border p-2 text-center text-xs text-fg-secondary shadow-sm hover:bg-bg-tertiary hover:shadow-sm"
               onClick={(ev) => {
