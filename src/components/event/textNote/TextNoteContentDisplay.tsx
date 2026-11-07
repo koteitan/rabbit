@@ -1,4 +1,4 @@
-import { For } from 'solid-js';
+import { createMemo, For } from 'solid-js';
 
 import escapeRegExp from 'lodash/escapeRegExp';
 import * as Kind from 'nostr-tools/kinds';
@@ -21,6 +21,7 @@ import {
   type ParsedTextNoteResolvedNode,
   type ParsedTextNoteResolved,
 } from '@/nostr/parseTextNote';
+import reuseUnchangedItems from '@/utils/reuseUnchangedItems';
 import { isImageUrl, isVideoUrl, isAudioUrl, isWebSocketUrl, isSafeUrl } from '@/utils/url';
 
 export type LocalMedia = {
@@ -57,35 +58,48 @@ const TextNoteContentDisplay = (props: TextNoteContentDisplayProps) => {
     request({ command: 'moveToLastColumn' }).catch((err) => console.error(err));
   };
 
+  // the post preview gives a new array for every keystroke. Placeholders become their own nodes
+  // and unchanged nodes are reused, so that their cards, images and videos are not created again.
+  const nodes = createMemo<ParsedTextNoteResolved>((prev) => {
+    const placeholders = Object.keys(props.localMedia ?? {});
+    const split = props.parsed.flatMap((node): ParsedTextNoteResolved => {
+      if (node.type !== 'PlainText') return [node];
+      return splitByPlaceholders(node.content, placeholders).map((content) => ({
+        type: 'PlainText',
+        content,
+      }));
+    });
+    return reuseUnchangedItems(prev, split);
+  }, []);
+
+  // an own property only: text such as `constructor` would be found on the prototype
+  const localMediaOf = (text: string): LocalMedia | undefined =>
+    props.localMedia != null && Object.hasOwn(props.localMedia, text)
+      ? props.localMedia[text]
+      : undefined;
+
   return (
-    <For each={props.parsed}>
+    <For each={nodes()}>
       {(item: ParsedTextNoteResolvedNode) => {
         if (item.type === 'PlainText') {
-          if (props.localMedia == null) return <span>{item.content}</span>;
+          const media = localMediaOf(item.content);
+          if (media == null) return <span>{item.content}</span>;
+          if (media.type === 'video') {
+            return (
+              // eslint-disable-next-line jsx-a11y/media-has-caption
+              <video
+                class="my-2 block max-h-64 max-w-full rounded-sm object-contain shadow-sm"
+                src={media.url}
+                controls
+              />
+            );
+          }
           return (
-            <For each={splitByPlaceholders(item.content, Object.keys(props.localMedia))}>
-              {(part) => {
-                const media = props.localMedia?.[part];
-                if (media == null) return <span>{part}</span>;
-                if (media.type === 'video') {
-                  return (
-                    // eslint-disable-next-line jsx-a11y/media-has-caption
-                    <video
-                      class="my-2 block max-h-64 max-w-full rounded-sm object-contain shadow-sm"
-                      src={media.url}
-                      controls
-                    />
-                  );
-                }
-                return (
-                  <img
-                    class="my-2 block max-h-64 max-w-full rounded-sm object-contain shadow-sm"
-                    src={media.url}
-                    alt={part}
-                  />
-                );
-              }}
-            </For>
+            <img
+              class="my-2 block max-h-64 max-w-full rounded-sm object-contain shadow-sm"
+              src={media.url}
+              alt={item.content}
+            />
           );
         }
         if (item.type === 'URL') {
