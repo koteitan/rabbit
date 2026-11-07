@@ -459,7 +459,8 @@ const NotePostForm: Component<NotePostFormProps> = (props) => {
   }));
 
   return (
-    <div class="p-1">
+    // only the preview shrinks and scrolls when the form does not fit in the parent's height
+    <div class="flex min-h-0 flex-col p-1">
       <Show when={props.replyTo != null}>
         <div>
           {i18n.t('posting.replyToPre')}
@@ -620,10 +621,10 @@ const NotePostForm: Component<NotePostFormProps> = (props) => {
       <Show when={previewEvent()}>
         {(event) => (
           <div
-            class="rounded-md border border-border p-1"
+            class="scrollbar overflow-y-auto rounded-md border border-border p-1"
             classList={{ 'mt-9': mode() === 'normal', 'mt-7': mode() === 'reply' }}
           >
-            <TextNote event={event()} actions={false} localMedia={previewMedia()} />
+            <TextNote event={event()} actions={false} localMedia={previewMedia()} fullContent />
           </div>
         )}
       </Show>

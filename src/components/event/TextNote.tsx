@@ -22,6 +22,7 @@ export type TextNoteProps = {
   embedding?: boolean;
   actions?: boolean;
   localMedia?: Record<string, LocalMedia>;
+  fullContent?: boolean;
 };
 
 const TextNote: Component<TextNoteProps> = (props) => {
@@ -71,6 +72,7 @@ const TextNote: Component<TextNoteProps> = (props) => {
       <Post
         authorPubkey={event().pubkey}
         createdAt={event().createdAtAsDate()}
+        fullContent={props.fullContent}
         content={
           <div class="textnote-content">
             <Show when={showReplyEvent()} keyed>

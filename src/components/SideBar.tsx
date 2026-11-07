@@ -338,9 +338,10 @@ const SideBar: Component = () => {
         when={shouldUseMobileUI()}
         fallback={
           <div
-            class="w-56 border-r border-border bg-r-sidebar px-2 pt-2"
+            class="w-56 flex-col border-r border-border bg-r-sidebar px-2 pt-2"
             classList={{
               static: formOpened() || config().keepOpenPostForm,
+              flex: formOpened() || config().keepOpenPostForm,
               hidden: !(formOpened() || config().keepOpenPostForm),
             }}
           >
@@ -354,9 +355,10 @@ const SideBar: Component = () => {
         }
       >
         <div
-          class="bottom-0 left-20 z-10 w-[calc(100vw-8rem)] rounded-md border-t border-border bg-r-sidebar px-2 pt-2 shadow-sm"
+          class="bottom-0 left-20 z-10 max-h-dvh w-[calc(100vw-8rem)] flex-col rounded-md border-t border-border bg-r-sidebar px-2 pt-2 shadow-sm"
           classList={{
             absolute: formOpened() || config().keepOpenPostForm,
+            flex: formOpened() || config().keepOpenPostForm,
             hidden: !(formOpened() || config().keepOpenPostForm),
           }}
         >
