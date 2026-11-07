@@ -62,16 +62,20 @@ const TwitterEmbed: Component<{ url: string }> = (props) => {
   return (
     <>
       <SafeLink class="text-link underline" href={props.url} />
-      <blockquote ref={twitterRef} class="twitter-tweet" data-theme={dataTheme()}>
-        <a
-          class="text-link underline"
-          href={twitterUrl(props.url)}
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          {''}
-        </a>
-      </blockquote>
+      {/* widgets.js inserts the card next to the blockquote, which Solid does not know.
+          This div is removed with the card. */}
+      <div>
+        <blockquote ref={twitterRef} class="twitter-tweet" data-theme={dataTheme()}>
+          <a
+            class="text-link underline"
+            href={twitterUrl(props.url)}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            {''}
+          </a>
+        </blockquote>
+      </div>
     </>
   );
 };
